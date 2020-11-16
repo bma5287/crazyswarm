@@ -10,7 +10,7 @@ import tf_conversions
 from std_srvs.srv import Empty
 import std_msgs
 from crazyflie_driver.srv import *
-from crazyflie_driver.msg import TrajectoryPolynomialPiece, FullState, Position, VelocityWorld
+from crazyflie_driver.msg import TrajectoryPolynomialPiece, FullState, Position, VelocityWorld, Gtc
 from tf import TransformListener
 from visualizer import visNull
 
@@ -117,6 +117,30 @@ class Crazyflie:
         self.cmdVelocityWorldMsg = VelocityWorld()
         self.cmdVelocityWorldMsg.header.seq = 0
         self.cmdVelocityWorldMsg.header.frame_id = "/world"
+
+        #************************************ADDED PUBLISHER FOR GTC ************************/
+        
+        self.cmdGtcPublisher = rospy.Publisher(prefix + "/cmd_gtc", Gtc, queue_size=1)
+        self.cmdGtcMsg = Gtc()
+        self.cmdGtcMsg.header.seq = 0
+        self.cmdGtcMsg.header.frame_id = "/world"
+        
+
+    def cmdGtc(self, mode, cmd1, cmd2, cmd3): # FUNCTION TO PUBLISH GTC CMDS**************/
+        """Sends commands for gtc controller and type
+        Args:
+            cmd (array-like of float[3]): COMMANDS. Variable.
+            mode (uint16_t): flight mode. 2->vel 3->att 4->attrt.
+        """
+        self.cmdGtcMsg.header.stamp = rospy.Time.now()
+        self.cmdGtcMsg.header.seq += 1
+        self.cmdGtcMsg.mode = mode
+        self.cmdGtcMsg.cmd.x = cmd1
+        self.cmdGtcMsg.cmd.y = cmd2
+        self.cmdGtcMsg.cmd.z = cmd3
+        self.cmdGtcPublisher.publish(self.cmdGtcMsg)
+
+        #************************************ADDED PUBLISHER FOR GTC ************************/
 
     def setGroupMask(self, groupMask):
         """Sets the group mask bits for this robot.
