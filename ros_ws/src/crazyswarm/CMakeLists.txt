@@ -179,6 +179,14 @@ target_link_libraries(mocap_helper
   ${catkin_LIBRARIES}
 )
 
+## Declare a cpp executable
+add_executable(state_sub
+  src/state_sub.cpp
+)
+
+target_link_libraries(state_sub
+  ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
