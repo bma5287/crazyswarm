@@ -19,6 +19,7 @@
 #include "crazyflie_driver/FullState.h"
 #include "crazyflie_driver/Position.h"
 #include "crazyflie_driver/VelocityWorld.h"
+#include "crazyflie_driver/Gtc.h"
 #include "std_srvs/Empty.h"
 #include <std_msgs/Empty.h>
 #include "geometry_msgs/Twist.h"
@@ -216,6 +217,7 @@ public:
     m_subscribeCmdFullState = n.subscribe(tf_prefix + "/cmd_full_state", 1, &CrazyflieROS::cmdFullStateSetpoint, this);
     m_subscribeCmdVelocityWorld = n.subscribe(tf_prefix + "/cmd_velocity_world", 1, &CrazyflieROS::cmdVelocityWorldSetpoint, this);
     m_subscribeCmdStop = n.subscribe(m_tf_prefix + "/cmd_stop", 1, &CrazyflieROS::cmdStop, this);
+    m_subscribeCmdGtc = n.subscribe(m_tf_prefix + "/cmd_gtc", 1, &CrazyflieROS::cmdGtcSetpoint, this);
 
     if (m_enableLogging) {
       m_logFile.open("logcf" + std::to_string(id) + ".csv");
@@ -469,6 +471,23 @@ public:
       // m_sentSetpoint = true;
     // }
   }
+
+/************************************ADDED SETPOINT FOR GTC ************************/
+
+  void cmdGtcSetpoint(
+    const crazyflie_driver::Gtc::ConstPtr& msg)
+  {
+    // if(!m_isEmergency) {
+      float mode = msg->mode; // change to uint16 later
+      float cmd1 = msg->cmd.x;
+      float cmd2 = msg->cmd.y;
+      float cmd3 = msg->cmd.z;
+      m_cf.sendGtcSetpoint(mode,cmd1,cmd2,cmd3);
+      // m_sentSetpoint = true;
+    // }
+  }
+
+/************************************ADDED SETPOINT FOR GTC ************************/
 
   void cmdPositionSetpoint(
     const crazyflie_driver::Position::ConstPtr& msg)
@@ -789,6 +808,7 @@ private:
   ros::Subscriber m_subscribeCmdFullState;
   ros::Subscriber m_subscribeCmdVelocityWorld;
   ros::Subscriber m_subscribeCmdStop;
+  ros::Subscriber m_subscribeCmdGtc;
 
   std::vector<crazyflie_driver::LogBlock> m_logBlocks;
   std::vector<ros::Publisher> m_pubLogDataGeneric;
